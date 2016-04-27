@@ -19,7 +19,7 @@ before_install:
     - composer self-update
 
 before_script:
-    - composer install --prefer-source --no-interaction
+    - composer install --no-interaction
     - mv tests/database_settings.yml.dist tests/database_settings.yml
 
 script:
