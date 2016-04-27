@@ -109,6 +109,11 @@ class Response
         $this->rows = $rows;
     }
 
+    public function getRows()
+    {
+        return $this->rows;
+    }
+
     public function geRows()
     {
         return $this->rows;
