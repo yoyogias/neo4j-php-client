@@ -1,4 +1,4 @@
-# Changelog for v4
+## Changelog for v4
 
 4.3.1 - 13 May 2016
 
