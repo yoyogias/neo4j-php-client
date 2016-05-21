@@ -61,7 +61,7 @@ You can:
 
 ### Installation
 
-Add the library to your composer dependencies :
+Add the library to your composer dependencis :
 
 ```bash
 composer require graphaware/neo4j-php-client
