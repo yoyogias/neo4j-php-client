@@ -107,6 +107,9 @@ class Connection
     public function run($statement, $parameters = null, $tag = null)
     {
         $this->checkSession();
+        if (empty($statement)) {
+            throw new \InvalidArgumentException('You must provide a valid $statement parameter');
+        }
         $parameters = (array) $parameters;
 
         try {
