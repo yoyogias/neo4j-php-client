@@ -108,7 +108,7 @@ class Connection
     {
         $this->checkSession();
         if (empty($statement)) {
-            throw new \InvalidArgumentException('You cannot run an empty statement.');
+            throw new \InvalidArgumentException(sprintf('Expected a non-empty Cypher statement, got "%s"', $statement));
         }
         $parameters = (array) $parameters;
 
