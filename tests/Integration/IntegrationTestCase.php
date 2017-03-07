@@ -22,9 +22,31 @@ class IntegrationTestCase extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
+        $httpUri = 'http://localhost:7474';
+        if (isset($_ENV['NEO4J_USER'])) {
+            $httpUri = sprintf(
+                '%s://%s:%s@%s:%s',
+                getenv('NEO4J_SCHEMA'),
+                getenv('NEO4J_USER'),
+                getenv('NEO4J_PASSWORD'),
+                getenv('NEO4J_HOST'),
+                getenv('NEO4J_PORT')
+            );
+        }
+
+        $boltUrl = 'bolt://localhost';
+        if (isset($_ENV['NEO4J_USER'])) {
+            $boltUrl = sprintf(
+                'bolt://%s:%s@%',
+                getenv('NEO4J_USER'),
+                getenv('NEO4J_PASSWORD'),
+                getenv('NEO4J_HOST')
+            );
+        }
+
         $this->client = ClientBuilder::create()
-            ->addConnection('http', 'http://localhost:7474')
-            ->addConnection('bolt', 'bolt://localhost')
+            ->addConnection('http', $httpUri)
+            ->addConnection('bolt', $boltUrl)
             ->build();
     }
 
