@@ -108,7 +108,7 @@ class Connection
     {
         $this->checkSession();
         if (empty($statement)) {
-            throw new \InvalidArgumentException('You must provide a valid $statement parameter');
+            throw new \InvalidArgumentException('You cannot run an empty statement.');
         }
         $parameters = (array) $parameters;
 
