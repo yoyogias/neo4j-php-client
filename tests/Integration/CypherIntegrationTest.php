@@ -57,4 +57,12 @@ class CypherIntegrationTest extends IntegrationTestCase
         $this->assertInstanceOf(Path::class, $record1->get('p'));
         $this->assertInstanceOf(Path::class, $record2->get('p'));
     }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testExceptionIsThrownOnEmptyStatement() {
+        $query = '';
+        $this->client->run($query);
+    }
 }
