@@ -511,7 +511,7 @@ $httpClient = new Client(null, null, $options);
 
 $config = \GraphAware\Neo4j\Client\HttpDriver\Configuration::create($httpClient);
 $client = ClientBuilder::create()
-    ->addConnection('default', 'http://neo4j:password@localhost:7474', config)
+    ->addConnection('default', 'http://neo4j:password@localhost:7474', $config)
     ->build();
 ```
 
