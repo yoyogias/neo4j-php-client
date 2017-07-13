@@ -266,10 +266,8 @@ class Session implements SessionInterface
         }
 
         $headers = [
-            [
-                'X-Stream' => true,
-                'Content-Type' => 'application/json',
-            ],
+            'X-Stream' => true,
+            'Content-Type' => 'application/json',
         ];
 
         $body = json_encode([
