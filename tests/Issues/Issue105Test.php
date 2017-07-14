@@ -41,4 +41,33 @@ class Issue105Test extends IntegrationTestCase
         $this->assertEquals(1, $result->size());
         $this->assertEquals('Picardie', $result->firstRecord()->nodeValue('re')->value('name'));
     }
+
+    /**
+     * @group issue-105-bis
+     */
+    public function testCreateAndMatchInStack()
+    {
+        $this->emptyDb();
+        // Create NL Country Node
+        $this->client->run('CREATE (n:Country) SET n.code = "NL"');
+
+        $provinces = ['DR','FL','FR','GE','GR','LI','NB','NH','OV','UT','ZE','ZH'];
+
+        foreach ($provinces as $code) {
+            $stack = $this->client->stack();
+            $createQuery = 'CREATE (n:Province) set n += {infos}';
+            $relationQuery = 'MATCH (p:Province) MATCH (c:Country) WHERE p.code = {code} AND c.code = "NL" CREATE (p)-[:IN]->(c)';
+
+            $stack->push($createQuery, [
+                'infos' => [
+                    'id'   => 'id'.$code,
+                    'name' => 'name'.$code,
+                    'code' => $code
+                ]
+            ]);
+
+            $stack->push($relationQuery, ['code' => $code]);
+            $this->client->runStack($stack);
+        }
+    }
 }
