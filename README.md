@@ -500,9 +500,11 @@ We use HTTPlug to give you full control of the HTTP client. Version 4 of the Neo
 to preserve backward compatibility. Version 5 will give you the option to choose whatever client you want. Read more
 about HTTPlug [in their documentation](http://docs.php-http.org/en/latest/httplug/users.html).
 
-To configure your client you may add it to `Configuration`. 
+To configure your client you may add it to `Configuration`. Below is an example using `php-http/curl-client`.
 
 ```php
+use Http\Client\Curl\Client;
+
 $options = [
     CURLOPT_CONNECTTIMEOUT => 3, // The number of seconds to wait while trying to connect.
     CURLOPT_SSL_VERIFYPEER => false // Stop cURL from verifying the peer's certificate
