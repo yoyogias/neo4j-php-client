@@ -22,11 +22,28 @@ use GraphAware\Neo4j\Client\Neo4jClientEvents;
  */
 class BuildWithEventListenersIntegrationTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @return string
+     */
+    private function createBoltUrl()
+    {
+        $boltUrl = 'bolt://localhost';
+        if (isset($_ENV['NEO4J_USER'])) {
+            $boltUrl = sprintf(
+                'bolt://%s:%s@%s',
+                getenv('NEO4J_USER'),
+                getenv('NEO4J_PASSWORD'),
+                getenv('NEO4J_HOST')
+            );
+        }
+        return $boltUrl;
+    }
+
     public function testListenersAreRegistered()
     {
         $listener = new EventListener();
         $client = ClientBuilder::create()
-            ->addConnection('default', 'bolt://localhost')
+            ->addConnection('default', $this->createBoltUrl())
             ->registerEventListener(Neo4jClientEvents::NEO4J_PRE_RUN, [$listener, 'onPreRun'])
             ->registerEventListener(Neo4jClientEvents::NEO4J_POST_RUN, [$listener, 'onPostRun'])
             ->registerEventListener(Neo4jClientEvents::NEO4J_ON_FAILURE, [$listener, 'onFailure'])
@@ -41,7 +58,7 @@ class BuildWithEventListenersIntegrationTest extends \PHPUnit_Framework_TestCase
     {
         $listener = new EventListener();
         $client = ClientBuilder::create()
-            ->addConnection('default', 'bolt://localhost')
+            ->addConnection('default', $this->createBoltUrl())
             ->registerEventListener(Neo4jClientEvents::NEO4J_ON_FAILURE, [$listener, 'onFailure'])
             ->build();
 

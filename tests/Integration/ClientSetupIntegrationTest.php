@@ -115,8 +115,20 @@ class ClientSetupIntegrationTest extends \PHPUnit_Framework_TestCase
 
     public function testSendWriteUseMasterIfAvailable()
     {
+        $httpUri = 'http://localhost:7474';
+        if (isset($_ENV['NEO4J_USER'])) {
+            $httpUri = sprintf(
+                '%s://%s:%s@%s:%s',
+                getenv('NEO4J_SCHEMA'),
+                getenv('NEO4J_USER'),
+                getenv('NEO4J_PASSWORD'),
+                getenv('NEO4J_HOST'),
+                getenv('NEO4J_PORT')
+            );
+        }
+
         $connectionManager = $this->prophesize(ConnectionManager::class);
-        $conn = new Connection('default', 'http://localhost:7474', null, 5);
+        $conn = new Connection('default', $httpUri, null, 5);
         $connectionManager->getMasterConnection()->willReturn($conn);
         $connectionManager->getMasterConnection()->shouldBeCalled();
 
