@@ -106,8 +106,8 @@ class TransactionIntegrationTest extends IntegrationTestCase
         try {
             $result = $tx->run('CREATE (n:Test) RETURN x');
             $this->assertEquals(1, 2); // If we reached here then there is a bug
-        } catch (MessageFailureException $e) {
-            $this->assertEquals(1, 1);
+        } catch (Neo4jException $e) {
+            $this->assertEquals(Neo4jExceptionInterface::EFFECT_ROLLBACK, $e->effect());
         }
         //$this->assertEquals(Transaction::ROLLED_BACK, $tx->status());
         $this->assertXNodesWithLabelExist('Test', 0);
