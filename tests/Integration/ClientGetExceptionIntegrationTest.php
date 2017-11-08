@@ -18,8 +18,18 @@ class ClientGetExceptionIntegrationTest extends \PHPUnit_Framework_TestCase
 {
     public function testExceptionHandling()
     {
+        $boltUrl = 'bolt://localhost';
+        if (isset($_ENV['NEO4J_USER'])) {
+            $boltUrl = sprintf(
+                'bolt://%s:%s@%s',
+                getenv('NEO4J_USER'),
+                getenv('NEO4J_PASSWORD'),
+                getenv('NEO4J_HOST')
+            );
+        }
+
         $client = ClientBuilder::create()
-            ->addConnection('default', 'bolt://localhost')
+            ->addConnection('default', $boltUrl)
             ->build();
 
         $this->setExpectedException(Neo4jException::class);
