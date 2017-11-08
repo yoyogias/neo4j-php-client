@@ -11,11 +11,14 @@
 
 namespace GraphAware\Neo4j\Client\Transaction;
 
+use GraphAware\Bolt\Exception\MessageFailureException;
 use GraphAware\Common\Cypher\Statement;
 use GraphAware\Common\Result\Result;
 use GraphAware\Common\Transaction\TransactionInterface;
+use GraphAware\Neo4j\Client\Event\FailureEvent;
 use GraphAware\Neo4j\Client\Event\PostRunEvent;
 use GraphAware\Neo4j\Client\Event\PreRunEvent;
+use GraphAware\Neo4j\Client\Exception\Neo4jException;
 use GraphAware\Neo4j\Client\Neo4jClientEvents;
 use GraphAware\Neo4j\Client\Result\ResultCollection;
 use GraphAware\Neo4j\Client\StackInterface;
@@ -65,7 +68,9 @@ class Transaction
      * @param array       $parameters
      * @param null|string $tag
      *
-     * @return \GraphAware\Common\Result\Result
+     * @throws Neo4jException
+     *
+     * @return \GraphAware\Common\Result\Result|null
      */
     public function run($statement, array $parameters = [], $tag = null)
     {
@@ -74,8 +79,20 @@ class Transaction
         }
         $stmt = Statement::create($statement, $parameters, $tag);
         $this->eventDispatcher->dispatch(Neo4jClientEvents::NEO4J_PRE_RUN, new PreRunEvent([$stmt]));
-        $result = $this->driverTransaction->run(Statement::create($statement, $parameters, $tag));
-        $this->eventDispatcher->dispatch(Neo4jClientEvents::NEO4J_POST_RUN, new PostRunEvent(ResultCollection::withResult($result)));
+        try {
+            $result = $this->driverTransaction->run(Statement::create($statement, $parameters, $tag));
+            $this->eventDispatcher->dispatch(Neo4jClientEvents::NEO4J_POST_RUN, new PostRunEvent(ResultCollection::withResult($result)));
+        } catch (MessageFailureException $e) {
+            $exception = new Neo4jException($e->getMessage());
+            $exception->setNeo4jStatusCode($e->getStatusCode());
+
+            $event = new FailureEvent($exception);
+            $this->eventDispatcher->dispatch(Neo4jClientEvents::NEO4J_ON_FAILURE, $event);
+            if ($event->shouldThrowException()) {
+                throw $exception;
+            }
+            return null;
+        }
 
         return $result;
     }
@@ -93,7 +110,9 @@ class Transaction
     /**
      * @param StackInterface $stack
      *
-     * @return ResultCollection|Result[]
+     * @throws Neo4jException
+     *
+     * @return ResultCollection|Result[]|null
      */
     public function runStack(StackInterface $stack)
     {
@@ -108,8 +127,20 @@ class Transaction
         }
 
         $this->eventDispatcher->dispatch(Neo4jClientEvents::NEO4J_PRE_RUN, new PreRunEvent($stack->statements()));
-        $results = $this->driverTransaction->runMultiple($sts);
-        $this->eventDispatcher->dispatch(Neo4jClientEvents::NEO4J_POST_RUN, new PostRunEvent($results));
+        try {
+            $results = $this->driverTransaction->runMultiple($sts);
+            $this->eventDispatcher->dispatch(Neo4jClientEvents::NEO4J_POST_RUN, new PostRunEvent($results));
+        } catch (MessageFailureException $e) {
+            $exception = new Neo4jException($e->getMessage());
+            $exception->setNeo4jStatusCode($e->getStatusCode());
+
+            $event = new FailureEvent($exception);
+            $this->eventDispatcher->dispatch(Neo4jClientEvents::NEO4J_ON_FAILURE, $event);
+            if ($event->shouldThrowException()) {
+                throw $exception;
+            }
+            return null;
+        }
 
         return $results;
     }
