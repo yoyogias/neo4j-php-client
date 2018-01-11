@@ -66,7 +66,27 @@ class ClientBuilder
      */
     public function addConnection($alias, $uri, ConfigInterface $config = null)
     {
+        //small hack for drupal
+        if (substr($uri, 0, 7) === 'bolt://') {
+            $parts = explode('bolt://', $uri );
+            if (count($parts) === 2) {
+                $splits = explode('@', $parts[1]);
+                $split = $splits[count($splits)-1];
+                if (substr($split, 0, 4) === 'ssl+') {
+                    $up = count($splits) > 1 ? $splits[0] : '';
+                    $ups = explode(':', $up);
+                    $u = $ups[0];
+                    $p = $ups[1];
+                    $uri = 'bolt://'.str_replace('ssl+', '', $split);
+                    $config = \GraphAware\Bolt\Configuration::newInstance()
+                        ->withCredentials($u, $p)
+                        ->withTLSMode(\GraphAware\Bolt\Configuration::TLSMODE_REQUIRED);
+                }
+            }
+        }
+
         $this->config['connections'][$alias]['uri'] = $uri;
+
         if (null !== $config) {
             if ($this->config['connections'][$alias]['config'] = $config);
         }
